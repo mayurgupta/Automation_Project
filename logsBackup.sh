@@ -50,6 +50,19 @@ s3://${s3_bucket}/${myname}-httpd-logs-${timestamp}.tar
 FILE="/var/www/html/inventory.html"
 if test -f "$FILE"; then
     echo "$FILE exists."
+    if [ ! -s "${FILE}" ]; then
+    echo "File is empty"
+     echo \<table\> \<tr\> >> /var/www/html/inventory.html
+    header=$(cat <<-END
+<th>Log Type</th>
+<th>Time Created</th>
+<th>Type</th>
+<th>Size</th>
+END
+)
+
+echo $header >> /var/www/html/inventory.html
+fi
 else
     echo "$FILE does not exists."
 
@@ -65,7 +78,6 @@ END
 )
 
 echo $header >> /var/www/html/inventory.html
-echo \<\/table\> \<\/tr\>  >> /var/www/html/inventory.html
 
 fi
 
@@ -79,11 +91,11 @@ row=$(cat <<-END
 <td>tar</td>
 <td>${filesize} K</td>
 </tr>
+</table>
 END
 )
-
+sed 's/\<\/table\>//g' /var/www/html/inventory.html
 echo $row >> /var/www/html/inventory.html
-
 
 # creating cron file
 
